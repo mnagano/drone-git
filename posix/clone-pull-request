@@ -1,9 +1,5 @@
 #!/bin/sh
 
-
-# pull request ref
-REF="refs/pull/${DRONE_PULL_REQUEST}/head"
-
 FLAGS=""
 if [[ ! -z "${PLUGIN_DEPTH}" ]]; then
 	FLAGS="--depth=${PLUGIN_DEPTH}"
@@ -18,7 +14,11 @@ set -e
 set -x
 
 git fetch ${FLAGS} origin +refs/heads/${DRONE_COMMIT_BRANCH}:
-git checkout ${DRONE_COMMIT_BRANCH}
+git checkout -qf FETCH_HEAD
 
-git fetch origin ${REF}:
-git merge ${DRONE_COMMIT_SHA}
+git fetch --no-tags origin +refs/pull/$DRONE_PULL_REQUEST/head
+git rev-parse HEAD
+git merge FETCH_HEAD
+
+git rev-parse HEAD
+git submodule update --init --recursive
